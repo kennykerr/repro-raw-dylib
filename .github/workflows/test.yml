@@ -1,0 +1,31 @@
+name: test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+env:
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+  test:
+    name: Test
+    runs-on: windows-2019
+
+    strategy:
+      matrix:
+        include:
+          - target: i686-pc-windows-gnu
+          - target: i686-pc-windows-msvc
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Update toolchain
+        run: rustup update --no-self-update nightly && rustup default nightly-${{ matrix.target }}
+      - name: Add toolchain target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Test
+        run: cargo test
